@@ -78,7 +78,7 @@ group :test do
   gem 'webmock' # add in chapter 10
 end
 
-gem 'devise'
+gem "devise", github: "heartcombo/devise", branch: "ca-turbo"
 gem 'net-imap'
 gem 'net-pop'
 gem 'net-smtp'

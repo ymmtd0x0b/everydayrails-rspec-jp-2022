@@ -1,17 +1,5 @@
 # frozen_string_literal: true
 
-class TurboFailureApp < Devise::FailureApp
-  def respond
-    if request_format == :turbo_stream
-      redirect
-    else
-      super
-    end
-  end
-
-  alias skip_format? is_navigational_format?
-end
-
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
 # are not: uncommented lines are intended to protect your configuration from
@@ -26,11 +14,11 @@ Devise.setup do |config|
   # confirmation, reset password and unlock tokens in the database.
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
-  # config.secret_key = 'cd10993a8299df6b79fc21dcda500bea27ba6b17417778dc2fef261d2b1ebc031ec6d1fcff47da5a69a8850a30a2ff34ac064994bd0a34cb2b13c56901a5d498'
+  # config.secret_key = '7ded941d63a71447988d45821e16e57d7025bd7617fddaa8c6f6d10f086c940b1e881c0f2360f20df0e0e804190442b51b899efa4b3ba776d116220c7fe08ecb'
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
-  config.parent_controller = 'TurboDeviseController'
+  # config.parent_controller = 'DeviseController'
 
   # ==> Mailer Configuration
   # Configure the e-mail address which will be shown in Devise::Mailer,
@@ -138,7 +126,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 12
 
   # Set up a pepper to generate the hashed password.
-  # config.pepper = '2ec4af482fd7990ceb4f85503902d9077d099977fae68899dd57fa3af0307f4590c6b1e7cc5e4705811be02ec06de2803cf6fc39238e6eef9e60db1b194bfe96'
+  # config.pepper = '44eb5f94c72a0cd383c387ec26244aa9f6cab836230ee6731cfb319a63c8f32e01a066e18376adba58d3ca01594ef4ab521e34c0dc35c6697e96ee8124d6d82a'
 
   # Send a notification to the original email when the user's email is changed.
   # config.send_email_changed_notification = false
@@ -268,14 +256,14 @@ Devise.setup do |config|
 
   # ==> Navigation configuration
   # Lists the formats that should be treated as navigational. Formats like
-  # :html, should redirect to the sign in page when the user does not have
+  # :html should redirect to the sign in page when the user does not have
   # access, but formats like :xml or :json, should return 401.
   #
   # If you have any extra navigational formats, like :iphone or :mobile, you
   # should add them to the navigational formats lists.
   #
   # The "*/*" below is required to match Internet Explorer requests.
-  config.navigational_formats = ['*/*', :html, :turbo_stream]
+  # config.navigational_formats = ['*/*', :html, :turbo_stream]
 
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :delete
@@ -289,9 +277,10 @@ Devise.setup do |config|
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.
   #
-  config.warden do |manager|
-    manager.failure_app = TurboFailureApp
-  end
+  # config.warden do |manager|
+  #   manager.intercept_401 = false
+  #   manager.default_strategies(scope: :user).unshift :some_external_strategy
+  # end
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
@@ -307,12 +296,14 @@ Devise.setup do |config|
   # so you need to do it manually. For the users scope, it would be:
   # config.omniauth_path_prefix = '/my_engine/users/auth'
 
-  # ==> Turbolinks configuration
-  # If your app is using Turbolinks, Turbolinks::Controller needs to be included to make redirection work correctly:
-  #
-  # ActiveSupport.on_load(:devise_failure_app) do
-  #   include Turbolinks::Controller
-  # end
+  # ==> Hotwire/Turbo configuration
+  # When using Devise with Hotwire/Turbo, the http status for error responses
+  # and some redirects must match the following. The default in Devise for existing
+  # apps is `200 OK` and `302 Found respectively`, but new apps are generated with
+  # these new defaults that match Hotwire/Turbo behavior.
+  # Note: These might become the new default in future versions of Devise.
+  config.responder.error_status = :unprocessable_entity
+  config.responder.redirect_status = :see_other
 
   # ==> Configuration for :registerable
 
