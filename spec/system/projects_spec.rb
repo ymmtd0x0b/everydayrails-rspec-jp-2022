@@ -42,29 +42,28 @@ RSpec.describe "Projects", type: :system do
     expect(page).to_not have_button "Complete"
   end
 
-  scenario "it shows user's uncompleted projects only" do
-    user = FactoryBot.create(:user)
-    FactoryBot.create(:project, name: 'Uncomplete Project', owner: user)
-    FactoryBot.create(:project, name: 'Completed Project', owner: user, completed: true)
+  context "when access user's projects" do
+    let(:user) { FactoryBot.create(:user) }
 
-    sign_in user
+    before do
+      FactoryBot.create(:project, name: 'Uncomplete Project', owner: user)
+      FactoryBot.create(:project, name: 'Completed Project', owner: user, completed: true)
+    end
 
-    visit projects_path
+    scenario "shows uncompleted projects only" do
+      sign_in user
+      visit projects_path
 
-    expect(page).to have_selector "h2", text: 'Uncomplete Project'
-    expect(page).to_not have_selector "h2", text: 'Completed Project'
-  end
+      expect(page).to have_selector "h2", text: 'Uncomplete Project'
+      expect(page).to_not have_selector "h2", text: 'Completed Project'
+    end
 
-  scenario "it shows user's completed projects only" do
-    user = FactoryBot.create(:user)
-    FactoryBot.create(:project, name: 'Uncomplete Project', owner: user)
-    FactoryBot.create(:project, name: 'Completed Project', owner: user, completed: true)
+    scenario "shows completed projects only" do
+      sign_in user
+      visit completed_projects_path
 
-    sign_in user
-
-    visit completed_projects_path
-
-    expect(page).to have_selector "h2", text: 'Completed Project'
-    expect(page).to_not have_selector "h2", text: 'Uncomplete Project'
+      expect(page).to have_selector "h2", text: 'Completed Project'
+      expect(page).to_not have_selector "h2", text: 'Uncomplete Project'
+    end
   end
 end
