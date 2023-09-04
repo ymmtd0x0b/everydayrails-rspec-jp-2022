@@ -31,14 +31,14 @@ RSpec.describe "Projects", type: :system do
 
     visit project_path(project)
 
-    expect(page).to_not have_content "Completed"
+    expect(page).to_not have_selector ".badge.bg-success", text: 'Completed'
 
     click_button "Complete"
 
     expect(project.reload.completed?).to be true
     expect(page).to \
       have_content "Congratulations, this project is complete!"
-    expect(page).to have_content "Completed"
+    expect(page).to have_selector ".badge.bg-success", text: 'Completed'
     expect(page).to_not have_button "Complete"
   end
 
@@ -51,7 +51,20 @@ RSpec.describe "Projects", type: :system do
 
     visit projects_path
 
-    expect(page).to have_content 'Uncomplete Project'
-    expect(page).to_not have_content 'Completed Project'
+    expect(page).to have_selector "h2", text: 'Uncomplete Project'
+    expect(page).to_not have_selector "h2", text: 'Completed Project'
+  end
+
+  scenario "it shows user's completed projects only" do
+    user = FactoryBot.create(:user)
+    FactoryBot.create(:project, name: 'Uncomplete Project', owner: user)
+    FactoryBot.create(:project, name: 'Completed Project', owner: user, completed: true)
+
+    sign_in user
+
+    visit completed_projects_path
+
+    expect(page).to have_selector "h2", text: 'Completed Project'
+    expect(page).to_not have_selector "h2", text: 'Uncomplete Project'
   end
 end
